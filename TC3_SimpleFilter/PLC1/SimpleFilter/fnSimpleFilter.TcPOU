@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="fnSimpleFilter" Id="{0f18b70c-fb7e-4bf9-b93b-4a429ad08f9a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION fnSimpleFilter	: BOOL
+VAR_INPUT
+	UnfilterdValue	:REAL;					// Unfiltered (raw) value
+	FilterSize		:REAL;					// Filter value (0.0 = No filter ; 1.0 = MAX. filter)
+	FilteredValue	:REFERENCE TO REAL;		// Filtered value
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*
+	FiltererValue = ( K * FiltererValue ) + ( (1-K) * NewValue )
+
+	"Filter" must BE in range from 0 TO 1
+	- 0.0: No filter
+	- 0.5: Simular to average
+	- 1.0: Strongest filter
+*)
+IF FilterSize <= 1.0
+AND FilterSize >= 0.0
+THEN
+	// Filter sensor value
+	FilteredValue := (FilterSize * FilteredValue) + ( (1.0 - FilterSize) * UnfilterdValue);
+	fnSimpleFilter := TRUE;
+ELSE
+	fnSimpleFilter := FALSE;
+END_IF
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
